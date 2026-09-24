@@ -74,8 +74,38 @@ uv run screening-graph --help
 uv run pytest
 ```
 
-The API key we send you has a hard spending cap. Running the whole corpus through a model a few
-times will not come close to it — but a runaway loop will, so add a limit before you add a retry.
+Before your first run, read [Your API key and the setup traps](#your-api-key-and-the-setup-traps)
+below. It will save you an evening.
+
+## Your API key and the setup traps
+
+These are about getting the environment to run, not about the exercise. Everyone hits them, so
+here they are up front.
+
+**The key is an OpenRouter key, not an OpenAI key.** OpenRouter speaks the OpenAI API at
+`https://openrouter.ai/api/v1`. Model names carry the provider: `openai/gpt-4.1-mini`,
+`openai/text-embedding-3-small`.
+
+**It has a hard $10 spending cap and expires 7 days after we send it.** After either, requests
+fail. A full run over the corpus costs well under $1, but a runaway loop will empty it in minutes:
+put a limit on retries before you add them. If a bug burns the key, tell us; we will top it up.
+
+**Graphiti reaches for OpenAI in three places.** The LLM, the embedder *and* the search-time
+reranker all default to OpenAI when you don't pass your own. Point all three at OpenRouter, or
+replace them. The reranker is the one people miss: pass the other two and `Graphiti(...)` still
+fails on construction with `Missing credentials ... OPENAI_API_KEY`.
+
+**`invalid_json_schema ... 'additionalProperties' is required`.** OpenAI models behind OpenRouter
+reject Graphiti's default structured-output request. Pass
+`structured_output_mode="json_object"` to `OpenAIGenericClient`. This one is not in Graphiti's docs.
+
+**Docker is required** for FalkorDB (`docker compose up -d`). If Docker isn't an option on your
+machine, tell us early.
+
+**Python 3.11+**, but you don't have to install it: `uv sync` fetches the right version.
+
+**`No module named 'httpx'`** means your checkout is older than the fix; pull, then `uv sync`.
+`uv run pytest` includes a test that catches this.
 
 ## What we are grading
 
@@ -102,14 +132,6 @@ Push to a private GitHub repo and add the reviewer we name in the email, or send
 
 - Graphiti's API is `async`, and every episode you add costs an LLM call (or several): expect
   seconds per document, not milliseconds. Load once, then query.
-- Graphiti needs a model, an embedding service **and** a search-time reranker; by default it will
-  reach for OpenAI for all three. Read its configuration docs before your first run.
-- The key we send you is an **OpenRouter** key, not an OpenAI one. OpenRouter speaks the OpenAI API
-  at `https://openrouter.ai/api/v1`, and model names carry the provider (`openai/gpt-4.1-mini`,
-  `openai/text-embedding-3-small`). One trap that is not in Graphiti's docs: OpenAI models behind
-  OpenRouter reject Graphiti's default structured-output request (`invalid_json_schema ...
-  'additionalProperties' is required`). `OpenAIGenericClient(..., structured_output_mode="json_object")`
-  avoids it.
 - Give Graphiti the **date the thing happened**, not the time you ran your script. Its whole point is
   time: facts that were true, and facts that got replaced.
 - Decide early whether one company's data is one graph or all companies share one. Both are
