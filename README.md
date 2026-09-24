@@ -102,8 +102,14 @@ Push to a private GitHub repo and add the reviewer we name in the email, or send
 
 - Graphiti's API is `async`, and every episode you add costs an LLM call (or several): expect
   seconds per document, not milliseconds. Load once, then query.
-- Graphiti needs a model **and** an embedding service; by default it will reach for OpenAI for both.
-  Read its configuration docs before your first run.
+- Graphiti needs a model, an embedding service **and** a search-time reranker; by default it will
+  reach for OpenAI for all three. Read its configuration docs before your first run.
+- The key we send you is an **OpenRouter** key, not an OpenAI one. OpenRouter speaks the OpenAI API
+  at `https://openrouter.ai/api/v1`, and model names carry the provider (`openai/gpt-4.1-mini`,
+  `openai/text-embedding-3-small`). One trap that is not in Graphiti's docs: OpenAI models behind
+  OpenRouter reject Graphiti's default structured-output request (`invalid_json_schema ...
+  'additionalProperties' is required`). `OpenAIGenericClient(..., structured_output_mode="json_object")`
+  avoids it.
 - Give Graphiti the **date the thing happened**, not the time you ran your script. Its whole point is
   time: facts that were true, and facts that got replaced.
 - Decide early whether one company's data is one graph or all companies share one. Both are

@@ -18,7 +18,7 @@ def test_the_acquirer_and_the_target_are_not_swapped():
 
 
 def test_a_consideration_keeps_the_unit_the_document_printed():
-    """'Rupees Twenty Crores Seventy Four Lakhs...' is not 20.74, and not 2074."""
+    """FIL-001: 'Rs. 16.44 Crores' is 16.44 crore, not a bare 16.44 and not 1644."""
 
 
 def test_a_missing_consideration_stays_missing():

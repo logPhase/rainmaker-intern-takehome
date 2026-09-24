@@ -5,6 +5,8 @@ description = "Take-home: build a screening graph from Indian exchange filings"
 requires-python = ">=3.11"
 dependencies = [
     "graphiti-core[falkordb]>=0.30",
+    # graphiti-core imports httpx but does not declare it, and openai>=3 no longer pulls it in.
+    "httpx>=0.27",
     "pydantic>=2.7",
     "python-dotenv>=1.0",
     "typer>=0.12",
